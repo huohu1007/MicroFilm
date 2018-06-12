@@ -1,0 +1,86 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    useLibrary rootProject.ext.useLibrary
+
+    dexOptions {
+        // 最大堆内存
+        javaMaxHeapSize "4608m"
+        // 是否支持大工程模式
+        jumboMode = true
+        // 预编译
+        preDexLibraries = true
+        // 线程数
+        threadCount = 8
+        // 进程数
+        maxProcessCount 4
+    }
+
+    defaultConfig {
+        applicationId "com.micro.film"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        resConfigs "zh"
+        multiDexEnabled true
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86"
+            vectorDrawables.useSupportLibrary = true
+        }
+    }
+
+    signingConfigs {
+        release {
+            keyAlias alias
+            keyPassword keyPasswordValue
+            storeFile file(storeFilePath)
+            storePassword keystorePasswordValue
+            v2SigningEnabled true
+        }
+    }
+
+    buildTypes {
+        release {
+            //混淆
+            minifyEnabled true
+            // 移除无用的resource文件
+            shrinkResources true
+            //Zipalign优化
+            zipAlignEnabled true
+            //混淆时使用的文件
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            //签名
+            signingConfig signingConfigs.release
+        }
+        debug {
+            signingConfig signingConfigs.release
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
+}
+
+androidExtensions { //kotlin注解 实验功能
+    experimental = true
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    //kotlin
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation project(':app+frame')
+}
